@@ -50,9 +50,10 @@ func main() {
 ### Makefile
 
 ```sh
-build     Builds client code
-generate  Generates client code from OpenAPI specification
-help      Lists help commands
+build        Builds client code
+deps/update  Updates go dependencies
+generate     Generates client code from OpenAPI specification
+help         Lists help commands
 ```
 
 ### Updating Spec
