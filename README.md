@@ -35,7 +35,7 @@ There are examples for each endpoint in the `examples/` folder.
 
 Most assume environment variables for configuration to simplify things, e.g.:
 
-````sh
+```sh
 export HUE_SERVER="https://10.20.30.40"
 export HUE_APPLICATION_KEY="this-is-clearly-not-valid"
 
