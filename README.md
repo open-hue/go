@@ -50,14 +50,22 @@ func main() {
 ### Makefile
 
 ```sh
-build        Builds client code
-deps/update  Updates go dependencies
-generate     Generates client code from OpenAPI specification
-help         Lists help commands
+build       Builds client code
+spec/update Updates go dependencies
+deps/update Refreshes the OpenAPI specification from its source
+generate    Generates client code from OpenAPI specification
+help        Lists help commands
 ```
 
 ### Updating Spec
 
 The spec is managed within [open-hue/spec][spec] repository. This repository has a git sub-module with a static reference to prevent creating inconsistent builds. All updadtes to the spec must be intentionally pulled. The idea is to eventually pin static releases from the specification repository.
+
+To upddate the internal sub-module reference:
+
+1. `make spec/update`
+1. `make generate`
+
+Check for diffs, if there are any relevant changes it means the spec changed and thus the code must be regenerated & recompiled.
 
 [spec]: http://github.com/open-hue/spec
