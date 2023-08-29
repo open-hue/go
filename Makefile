@@ -17,7 +17,7 @@ spec/update: ## Refreshes the OpenAPI specification from its source
 
 .PHONY: go/build
 go/build: go/generate ## Builds client code
-	@$(GO) build
+	@$(GO) build -v ./...
 
 .PHONY: go/generate
 go/generate: ## Generates client code from OpenAPI specification
