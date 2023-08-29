@@ -15,15 +15,15 @@ help: ## Lists help commands
 spec/update: ## Refreshes the OpenAPI specification from its source
 	@$(GIT) submodule update --init --remote spec
 
-.PHONY: build
-build: generate ## Builds client code
+.PHONY: go/build
+go/build: go/generate ## Builds client code
 	@$(GO) build
 
-.PHONY: generate
-generate: ## Generates client code from OpenAPI specification
+.PHONY: go/generate
+go/generate: ## Generates client code from OpenAPI specification
 	@$(GO) generate
 
-.PHONY: deps/update
-deps/update: ## Updates go dependencies
+.PHONY: go/update
+go/update: ## Updates go dependencies
 	@$(GO) get -u
 	@$(GO) mod tidy

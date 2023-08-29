@@ -70,11 +70,11 @@ Light {ID:"5be4a6f4-4504-2c64-b7f6-dfe3004ff7f3", Name: "LED Strip 1"}
 ### Makefile
 
 ```sh
-build       Builds client code
-spec/update Updates go dependencies
-deps/update Refreshes the OpenAPI specification from its source
-generate    Generates client code from OpenAPI specification
-help        Lists help commands
+help         Lists help commands
+go/build     Builds client code
+go/generate  Generates client code from OpenAPI specification
+go/update    Updates go dependencies
+spec/update  Refreshes the OpenAPI specification from its source
 ```
 
 ### Updating Spec
@@ -84,7 +84,7 @@ The spec is managed within [open-hue/spec][spec] repository. This repository has
 To upddate the internal sub-module reference:
 
 1. `make spec/update`
-1. `make generate`
+1. `make go/generate`
 
 Check for diffs, if there are any relevant changes it means the spec changed and thus the code must be regenerated & recompiled.
 
