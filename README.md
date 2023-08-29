@@ -21,14 +21,34 @@ import (
 
 func main() {
   c, _ := hue.NewAuthenticatedClientWithResponses("https://10.0.0.23", "MyAppKey")
-  resp, _ := c.GetLightByIdWithResponse(context.Background(), "MyLightID")
+  resp, _ := c.GetLightsWithResponse(context.Background())
   lights := (*resp.JSON200).Data
-  if len(lights) > 0 {
-    fmt.Printf("Light with ID \"%s\" is called \"%s\"\n", lights[0].Id, lights[0].Metadata.Name)
-  } else {
-    fmt.Println("No lights found")
+  for _, l := range lights {
+    fmt.Printf("Light {ID:\"%s\", Name: \"%s\"}\n", l.Id, l.Metadata.Name)
   }
 }
+```
+
+### Built-in examples
+
+There are examples for each endpoint in the `examples/` folder.
+
+Most assume environment variables for configuration to simplify things, e.g.:
+
+````sh
+export HUE_SERVER="https://10.20.30.40"
+export HUE_APPLICATION_KEY="this-is-clearly-not-valid"
+
+go run examples/lights/all/main.go
+```
+
+Results in:
+
+```sh
+Light {ID:"c8sb0f94-50c7-20fb-9070-a063a91bfc00", Name: "Hue lamp 1"}
+Light {ID:"71bje066-5ded-22e9-9ekd-5f5f40e6a8ae", Name: "Hue lamp 2"}
+Light {ID:"8039b831-d937-282a-83f5-0bd3ea97dac3", Name: "Hue lamp 3"}
+Light {ID:"5be4a6f4-4504-2c64-b7f6-dfe3004ff7f3", Name: "LED Strip 1"}
 ```
 
 ## Local development

@@ -128,8 +128,23 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetLights request
+	GetLights(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetLightById request
 	GetLightById(ctx context.Context, id Id, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetLights(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetLightsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetLightById(ctx context.Context, id Id, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -142,6 +157,33 @@ func (c *Client) GetLightById(ctx context.Context, id Id, reqEditors ...RequestE
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetLightsRequest generates requests for GetLights
+func NewGetLightsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/clip/v2/resource/light")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewGetLightByIdRequest generates requests for GetLightById
@@ -221,8 +263,34 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetLightsWithResponse request
+	GetLightsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLightsResponse, error)
+
 	// GetLightByIdWithResponse request
 	GetLightByIdWithResponse(ctx context.Context, id Id, reqEditors ...RequestEditorFn) (*GetLightByIdResponse, error)
+}
+
+type GetLightsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *LightsResponse
+	JSONDefault  *ErrorsResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetLightsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetLightsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetLightByIdResponse struct {
@@ -248,6 +316,15 @@ func (r GetLightByIdResponse) StatusCode() int {
 	return 0
 }
 
+// GetLightsWithResponse request returning *GetLightsResponse
+func (c *ClientWithResponses) GetLightsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLightsResponse, error) {
+	rsp, err := c.GetLights(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetLightsResponse(rsp)
+}
+
 // GetLightByIdWithResponse request returning *GetLightByIdResponse
 func (c *ClientWithResponses) GetLightByIdWithResponse(ctx context.Context, id Id, reqEditors ...RequestEditorFn) (*GetLightByIdResponse, error) {
 	rsp, err := c.GetLightById(ctx, id, reqEditors...)
@@ -255,6 +332,39 @@ func (c *ClientWithResponses) GetLightByIdWithResponse(ctx context.Context, id I
 		return nil, err
 	}
 	return ParseGetLightByIdResponse(rsp)
+}
+
+// ParseGetLightsResponse parses an HTTP response from a GetLightsWithResponse call
+func ParseGetLightsResponse(rsp *http.Response) (*GetLightsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetLightsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest LightsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSONDefault = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseGetLightByIdResponse parses an HTTP response from a GetLightByIdWithResponse call
