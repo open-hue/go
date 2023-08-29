@@ -11,6 +11,10 @@ SPEC_FILE ?= spec/spec.yaml
 help: ## Lists help commands
 	@grep -h -E '^[a-zA-Z_\-\/]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-36s\033[0m %s\n", $$1, $$2}'
 
+.PHONY: setup
+setup: ## Installs dependencies
+	@$(GO) install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.13
+
 .PHONY: spec/update
 spec/update: ## Refreshes the OpenAPI specification from its source
 	@$(GIT) submodule update --init --remote spec

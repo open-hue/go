@@ -75,6 +75,7 @@ go/build     Builds client code
 go/generate  Generates client code from OpenAPI specification
 go/update    Updates go dependencies
 spec/update  Refreshes the OpenAPI specification from its source
+setup        Installs dependencies
 ```
 
 ### Updating Spec
